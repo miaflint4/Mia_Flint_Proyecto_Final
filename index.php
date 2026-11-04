@@ -1,61 +1,62 @@
+
+<?php
+session_start();
+
+if (isset($_SESSION["usuario"])) {
+    header("Location: panel.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOG IN</title>
+    <title>Spotify - Iniciar sesión</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-        <section>
-      <div class="card2">
-          <h1>Log in</h1>
-        <fieldset>
-<legend>Completar los datos</legend>
-<div>
-<label for="username">Username *</label>
-<input type="text" id="username" name="username" placeholder="Ej: Maurobobyk" required>
-</div>
-    
-    <div>
-<label for="password">Password *</label>
-<input type="password" id="password" name="password" placeholder="Minimo de 8 caracteres" minlength="8" required>
-</div>
+    <section>
+        <div class="card2">
 
-<div>
-<label>
-<input type="checkbox" name="terminos" required>
-Acepto los <a href="#">términos y condiciones</a> *
-</label>
-</div>
+            <h1>Spotify</h1>
+            <h2>Iniciar sesión</h2>
 
+            <?php if (isset($_GET["error"])) { ?>
+                <p>Usuario o contraseña incorrectos.</p>
+            <?php } ?>
 
-<div>
-<button type="submit"><a href="index.html">Submit</a></button>
-<button type="signup"><a href="signup.php">Sign up</a></button>
-</div>
-</form>
-</div>
-</div>
-</fieldset>
+            <form action="login.php" method="POST">
+
+                <fieldset>
+                    <legend>Completar los datos</legend>
+
+                    <div>
+                        <label for="usuario">Usuario *</label>
+                        <input type="email" id="email" name="email"
+                        placeholder="Ingresá tu email" required>
+                    </div>
+
+                    <div>
+                        <label for="clave">Contraseña *</label>
+                        <input type="password" id="clave" name="password"
+                        placeholder="Ingresá tu contraseña" required>
+                    </div>
+
+                    <button type="submit">Iniciar sesión</button>
+
+                    <a href="signup.php">
+                        <button type="button">Registrarse</button>
+                    </a>
+
+                </fieldset>
+
+            </form>
+
         </div>
-      </div>
-</section>
-</div>
+    </section>
 </body>
+</html>
 
-<?php
-$errores = [];
-$username = '';
-$password = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-$username = trim($_POST['nombre'] ?? '');
-$password = trim($_POST['apellido'] ?? '');
-if ($username === '') {
-$errores[] = 'El nombre es obligatorio.';
-}
-if ($password === '') {
-$errores[] = 'El apellido es obligatorio.';
-}
-}
