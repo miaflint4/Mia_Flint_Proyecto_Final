@@ -1,5 +1,10 @@
+
 <?php
 session_start();
+
+if (empty($_SESSION["token"])) {
+    $_SESSION["token"] = bin2hex(random_bytes(32));
+}
 
 if (!isset($_SESSION["usuario"]) || $_SESSION["rol"] !== "admin") {
     header("Location: panel.php");
@@ -11,6 +16,7 @@ require "conexion.php";
 $consulta = $conexion->query(
     "SELECT id, nombre, apellido, dni, email, rol, tipo_cuenta, fecha_creacion, fecha_archivado
      FROM usuarios
+     WHERE fecha_archivado IS NULL
      ORDER BY id ASC"
 );
 
@@ -43,6 +49,7 @@ $usuarios = $consulta->fetchAll();
                 <th>Rol</th>
                 <th>Cuenta</th>
                 <th>Estado</th>
+                <th>Acciones</th>
             </tr>
 
             <?php foreach ($usuarios as $usuario) { ?>
@@ -52,8 +59,9 @@ $usuarios = $consulta->fetchAll();
                     <td><?php echo htmlspecialchars($usuario["apellido"]); ?></td>
                     <td><?php echo htmlspecialchars($usuario["dni"]); ?></td>
                     <td><?php echo htmlspecialchars($usuario["email"]); ?></td>
-                    <td><?php echo $usuario["rol"]; ?></td>
-                    <td><?php echo $usuario["tipo_cuenta"]; ?></td>
+                    <td><?php echo htmlspecialchars($usuario["rol"]); ?></td>
+                    <td><?php echo htmlspecialchars($usuario["tipo_cuenta"]); ?></td>
+
                     <td>
                         <?php
                         echo $usuario["fecha_archivado"] === null
@@ -61,13 +69,39 @@ $usuarios = $consulta->fetchAll();
                             : "Archivado";
                         ?>
                     </td>
+
+                    <td>
+                        <a href="editar_usuario.php?id=<?php echo $usuario['id']; ?>">
+                            Editar
+                        </a>
+
+                        <?php if ($usuario["id"] != $_SESSION["id"]) { ?>
+
+                            <form action="archivar_usuario.php" method="POST">
+
+                                <input type="hidden" name="id"
+                                value="<?php echo $usuario['id']; ?>">
+
+                                <input type="hidden" name="token"
+                                value="<?php echo htmlspecialchars($_SESSION['token']); ?>">
+
+                                <button type="submit">Archivar</button>
+
+                            </form>
+
+                        <?php } ?>
+                    </td>
                 </tr>
             <?php } ?>
         </table>
 
+        <p>
+            <a href="usuarios_archivados.php">Ver usuarios archivados</a>
+        </p>
+
         <p><a href="panel.php">Volver al panel</a></p>
         <a href="logout.php">Cerrar sesión</a>
-        
+
     </div>
 </section>
 
