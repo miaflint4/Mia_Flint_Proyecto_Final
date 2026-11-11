@@ -46,6 +46,11 @@ $usuario = $consulta->fetch();
             <p><strong>DNI:</strong> <?php echo htmlspecialchars($usuario["dni"]); ?></p>
 
             <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario["email"]); ?></p>
+        
+    <a href="editar_usuario.php?id=<?php echo $_SESSION['id']; ?>">
+        Editar mis datos
+    </a>
+</p>
         </div>
 
         <div class="panel-enlaces">

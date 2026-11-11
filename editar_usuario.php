@@ -2,7 +2,26 @@
 <?php
 session_start();
 
-if (!isset($_SESSION["usuario"]) || ($_SESSION["rol"] ?? "") !== "admin") {
+if (!isset($_SESSION["usuario"])) {
+    header("Location: index.php");
+    exit;
+}
+
+$esAdmin = (($_SESSION["rol"] ?? "") === "admin");
+
+if ($esAdmin) {
+    $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
+
+    if (!$id) {
+        header("Location: admin_usuarios.php");
+        exit;
+    }
+
+} else {
+    $id = $_SESSION["id"] ?? null;
+}
+
+if (!$id) {
     header("Location: panel.php");
     exit;
 }
@@ -13,18 +32,13 @@ if (empty($_SESSION["token"])) {
 
 require "conexion.php";
 
-$id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
-
-if (!$id) {
-    header("Location: admin_usuarios.php");
-    exit;
-}
-
+// Buscar los datos del usuario
 $consulta = $conexion->prepare(
     "SELECT id, nombre, apellido, dni, email
      FROM usuarios
      WHERE id = ? AND fecha_archivado IS NULL"
 );
+
 $consulta->execute([$id]);
 $usuario = $consulta->fetch();
 
@@ -63,10 +77,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             "SELECT id FROM usuarios
              WHERE (dni = ? OR email = ?) AND id <> ?"
         );
+
         $consulta->execute([$dni, $email, $id]);
 
         if ($consulta->fetch()) {
+
             $errores[] = "El DNI o el correo ya pertenecen a otro usuario.";
+
         } else {
 
             $consulta = $conexion->prepare(
@@ -83,7 +100,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $id
             ]);
 
-            header("Location: admin_usuarios.php");
+            // Actualizar los datos de la sesión
+            if (!$esAdmin || $id == $_SESSION["id"]) {
+                $_SESSION["usuario"] = $email;
+                $_SESSION["nombre"] = $nombre;
+            }
+
+            if ($esAdmin) {
+                header("Location: admin_usuarios.php");
+            } else {
+                header("Location: panel.php");
+            }
+
             exit;
         }
     }
@@ -97,11 +125,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify - Editar usuario</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
 <section>
@@ -139,7 +170,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     </form>
 
-    <p><a href="admin_usuarios.php">Volver a usuarios</a></p>
+    <?php if ($esAdmin) { ?>
+        <p><a href="admin_usuarios.php">Volver a usuarios</a></p>
+    <?php } else { ?>
+        <p><a href="panel.php">Volver a mi panel</a></p>
+    <?php } ?>
 
 </div>
 </section>
