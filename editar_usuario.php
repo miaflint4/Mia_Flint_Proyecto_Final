@@ -32,7 +32,6 @@ if (empty($_SESSION["token"])) {
 
 require "conexion.php";
 
-// Buscar los datos del usuario
 $consulta = $conexion->prepare(
     "SELECT id, nombre, apellido, dni, email
      FROM usuarios
@@ -100,7 +99,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $id
             ]);
 
-            // Actualizar los datos de la sesión
             if (!$esAdmin || $id == $_SESSION["id"]) {
                 $_SESSION["usuario"] = $email;
                 $_SESSION["nombre"] = $nombre;

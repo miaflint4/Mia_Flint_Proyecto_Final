@@ -25,8 +25,6 @@ if (!$id) {
     header("Location: admin_usuarios.php");
     exit;
 }
-
-// Evitar que el administrador archive su propia cuenta.
 if ($id == $_SESSION["id"]) {
     exit("No podés archivar tu propia cuenta.");
 }
